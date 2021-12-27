@@ -1,12 +1,9 @@
 package main
 
 import (
-	"os"
-	"strings"
 	"log"
 	"github.com/streadway/amqp"
 )
-
 
 func failOnError(err error, msg string) {
 	if err != nil {
@@ -30,29 +27,27 @@ func main() {
 		false,             // no-wait
 		nil,               // arguments
 	)
-	if err != nil { log.Println("Queue declaration failed with error: ", err)}
+	failOnError(err, "Failed to declare queue.")
 
-	body := bodyFrom(os.Args)
-	err = ch.Publish(
-		"",     // exchange
-		queue.Name, // routing key - Queue Name
-		false,  // mandatory
-		false,  // immediate
-		amqp.Publishing{
-			DeliveryMode: amqp.Persistent,
-			ContentType:  "text/plain",
-			Body:         []byte(body),
-		})
-	failOnError(err, "Failed to publish message.")
-	log.Printf("[*] Message Sent: %s", body)
-}
+	msgs, err := ch.Consume(
+		queue.Name, // queue name
+		"",     // consumer
+		false,  // auto-act
+		false,  // exclusif
+		false,  // no-local
+		false,  // no-wait
+		nil,
+	)
+	if err != nil { log.Println("Consumer registration failed with error: ", err)}
 
-func bodyFrom(args []string) string {
-	var s string
-	if (len(args) < 2) || os.Args[1] == "" {
-		s = "HELLO"
-	} else {
-		s = strings.Join(args[1:], " ")
-	}
-	return s
+	forever := make(chan bool)
+	go func() {
+		for msg := range msgs {
+			log.Printf("New Message Recieved: %s", msg.Body)
+			msg.Ack(true)
+		}
+	}()
+
+	log.Println(" [*] Waiting for new messages... Press CTRL+C to exit.")
+	<- forever
 }
