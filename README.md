@@ -32,6 +32,7 @@ kubectl get deployments,pods,services
 Capture the EXTERNAL-IP of the LoadBalancer Service.
 
 By default the username and password for RabbitMQ dashboard is guest and guest.
+The running messaging queue on kubernetes can be accessed on http://167.172.7.118:15672 and the amqp on amqp://167.172.7.118:5672
 
 ![KUBECTL GET](images/kubectl_get.png)
 
