@@ -14,9 +14,24 @@
 
 ### Steps 
 
-1. Create a managed kubernetes cluster on Digital Ocean and connect to it via the config file or doctl cli.
-2. Clone the repository and cd into the clonned folder.
-3. Deploy the RabbitMQ Service.
+Install the kubectl cli before performing any steps below. kubectl will be used to connect and communicate with the cluster. [Install from here.](https://kubernetes.io/docs/tasks/tools/)
+
+1. Create a managed kubernetes cluster on the Digital Ocean Portal by [going here](https://cloud.digitalocean.com/kubernetes/clusters/new).
+2. Install the [doctl CLI](https://docs.digitalocean.com/reference/doctl/how-to/install/) and setup your cluster credentials configration. (using the doctl cli will help renew the cluster certificates automatically)
+```
+doctl kubernetes cluster kubeconfig save <cluster-id>
+```
+![](images/doctl_cmd.png)
+
+3. To setup the cluster credential configuration manually, download the config file from the DigitalOcean Portal.
+![](images/do_portal.png)
+```
+cd ~/.kube && kubectl --kubeconfig="path-to-downloaded-config-file" get nodes
+```
+![](images/kube_cmd.png)
+
+4. Clone the repository and cd into the clonned folder.
+5. Deploy the RabbitMQ Service.
 ```
 kubectl apply --filename k8s/RabbitMQStatefulSet.yml
 ```
